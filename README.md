@@ -7,8 +7,11 @@ A three-step automatic toolbox in GEE, called the 'Sentinel-1 Wildfire Progressi
     - The area of interest can be drawn using the Drawing Tools on the map, or it can be imported to GEE as an Asset.
     - The start and the end date of the fire can be inspected e.g., on the 'Current Situation Viewer' application on the COPERNICUS Emergency Management Service EFFIS website using the MODIS/SENTINEL2 Burned Area product (https://effis.jrc.ec.europa.eu/apps/effis_current_situation/ last accessed on 31.08.2023).
     - The algorithm identifies how many different S1 acquisition paths are available for the selected area and time frame and creates a collection of image sub-collections based on different acquisition geometry (satellite-orbit-path).
-    - The exportable output (to GEE Assets) of the first step is the pre-processed image dataset for the selected area and dates, and the geometry of the selected area (ROI). 2. In the second step, the exported ROI geometry and the input data are used to classify binary maps of burned-unburned areas for each time step available in the selected time frame. As in the article, the k-means clustering is used with 2 clusters, Manhattan distance and the farthest first initialization method.
+    - The exportable output (to GEE Assets) of the first step is the pre-processed image dataset for the selected area and dates, and the geometry of the selected area (ROI).
+
+2. In the second step, the exported ROI geometry and the input data are used to classify binary maps of burned-unburned areas for each time step available in the selected time frame. As in the article, the k-means clustering is used with 2 clusters, Manhattan distance and the farthest first initialization method.
     - The exportable output of this step is the classified images in the selected time frame.
+
 3. The images from the second step can be used in the third step to generate:
     - graphs with the quantified burned areas,
     - GIF time series animation and
