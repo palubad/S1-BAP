@@ -18,3 +18,27 @@ A three-step automatic toolbox in GEE, called the 'Sentinel-1 Wildfire Progressi
     - an analysis of affected land cover classes based on the CLC.
    
 The S1-WPM toolbox is freely available to the general public and is available from the GitHub repository at the following link: https://github.com/palubad/S1-WPM (will be publicly available after the article is published) and can also be imported to GEE using the following link: https://code.earthengine.google.com/?accept_repo=users/danielp/S1-WPM (last accessed on 31.08.2023).
+
+
+
+
+
+
+
+This data repository includes all the input FeatureCollections and Images, as well as the final results of the unsupervised clustering documented in Paluba et al. (2024): Tracking burned area progression in an unsupervised manner using Sentinel-1 SAR data in Google Earth Engine.
+
+- The elements starting with 'Selected_geoemtry_' stands for input geometries
+- The elements starting with 'input_images_' stands for preprocessed Sentinel-1 features
+- The elements starting with 'Results_' stands for the final results of the unsupervised clustering based on Paluba et al. (2024)
+
+
+
+--
+This dataset is free and open. 
+By using it, you agree to cite the following reference 
+in any publications derived from them:
+ 
+    Paluba, D. et al. (2024): Tracking burned area progression in an 
+    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
+    To be published in the IEEE JSTARS.
+--
