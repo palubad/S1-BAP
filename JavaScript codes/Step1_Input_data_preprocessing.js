@@ -1,72 +1,75 @@
-// Load the predefined geometry
-var Oly_geometry = 
-    /* color: #d63000 */
-    /* shown: false */
-    ee.Geometry.Polygon(
-        [[[21.458133205617063, 37.74797921043348],
-          [21.458133205617063, 37.600152715543224],
-          [21.91337917729675, 37.600152715543224],
-          [21.91337917729675, 37.74797921043348]]], null, false),
-    evia_geometry = 
-    /* color: #d63000 */
-    /* shown: false */
-    ee.Geometry.Polygon(
-        [[[23.122129452028535, 39.05932301569821],
-          [23.122129452028535, 38.678682048995924],
-          [23.498411190309785, 38.678682048995924],
-          [23.498411190309785, 39.05932301569821]]], null, false),
-    athens_geometry = 
-    /* color: #98ff00 */
-    /* shown: false */
-    ee.Geometry.Polygon(
-        [[[23.74517928446036, 38.23905210135975],
-          [23.74517928446036, 38.086265672591296],
-          [23.90722762430411, 38.086265672591296],
-          [23.90722762430411, 38.23905210135975]]], null, false);
+/*
+This code performs preprocessing of Sentinel-1 data for unsupervised burned area
+progression monitoring, based on Paluba et al. (2024).
 
-var athens = athens_geometry;
-var evia = evia_geometry;
-var olympia = Oly_geometry;
-var athens2 = ee.FeatureCollection('users/danielp/S1BAM_selected_geometry_athens2').first().geometry();
+* Set the input parameters in the *SETTINGS FOR THE USER* section of this code,
+on lines 35-58. After you set the input parameters, RUN the code and export 
+the sub-products in the "Tasks" bar for the next steps (selected geometry and 
+the preprocessed input images).
 
-//*******************************************************************************************
-//                            SELECT AN AREA OF INTEREST AND REFENCE POINT
+--
+This code is free and open. 
+By using this code and any data derived with it, 
+you agree to cite the following reference 
+in any publications derived from them:
+ 
+    Paluba, D. et al. (2024): Tracking burned area progression in an 
+    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
+    To be published in the IEEE JSTARS.
+--
 
-// Set your selected area as geometry
-var geometry = olympia;
+Authors of the code: Daniel Paluba (palubad@natur.cuni.cz) & Lorenzo G. Papale 
+*/
 
-// Set the CRS in EPSG
-var crs = 'EPSG:32634';
+// Load data from Paluba et al. (2024)
+var tatoi = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Tatoi').first().geometry();
+var evia = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Evia').first().geometry();
+var olympia = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Olympia').first().geometry();
+var megara = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Megara').first().geometry();
 
-// Select smoothing kernel window size [Integer, e.g. 3,5,7,9, etc.]
+// ======================================================================== //
+// ====================== SETTINGS FOR THE USER ========================== //
+// ====================================================================== //
+
+// 1. Set your selected area as geometry
+var geometry = megara;
+
+// 2. Select start and end dates
+var fireStartDate = '2021-08-16'; // Start of the fire
+var fireEndDate = '2021-08-25'; // End of the fire
+var startDate = ee.Date(fireStartDate).advance(-12,'month'); // Period to include in the long time series analysis
+/* Date settings for the ROIs in Paluba et al. (2024):
+     - Tatoi --> start = '2021-08-03', end = '2021-08-13'
+     - Megara --> start = '2021-08-16', end = '2021-08-25'
+     - Evia & Olympia --> start = '2021-08-03', end = '2021-08-19'
+*/
+// 3. Select smoothing kernel window size [Integer, e.g. 3,5,7,9, etc.]
 var kernelSize = 19;
 
-// Select which indices to use [list of strings]
+// 4. Select which indices to use [list of strings]
 // available indices: 'diffRFDI', 'diffRVI', 'kmap_VH', 'kmap_VV', 'logRatio_VH', 'logRatio_VV'
 var selectedIndices = ['diffRFDI','kmap_VH','kmap_VV','logRatio_VH','logRatio_VV'];
 
-// Select polarization filter [String]
+// 5. Select polarization filter [String]
 // available options: 'ALL', 'VH', 'VV'
 var pol_filter = 'ALL';
 
-// Select dates
-var fireStartDate = '2021-08-06';
-var fireEndDate = '2021-08-25';
-var startDate = ee.Date(fireStartDate).advance(-12,'month');
-// athens -- start = 08-03, end = 08-13
-// athens2 -- start = 08-16, end = 08-25
-// others -- start = 08-03, end = 08-19
+// 6. Set the CRS in EPSG - based on your selected ROI
+var crs = 'EPSG:32634';
+
 
 //*******************************************************************************************
 //                            CREATE SAR POLARIMETRIC INDICES
 
+// Center the view on your ROI
 Map.centerObject(geometry, 11);
 
+// Add the Atmospheric penetration composite using Sentinel-2 data
 Map.addLayer(ee.ImageCollection("COPERNICUS/S2_SR")
-.filterBounds(geometry)
-.filterDate(fireStartDate,fireEndDate).sort('system:time_start',false).first(), 
-{min:0, max:3000, bands:['B12','B11', 'B8']}, 
-'S-2 Atmospheric penetration composite [B12-B11-B9]')
+            .filterBounds(geometry)
+            .filterDate(fireStartDate,fireEndDate).sort('system:time_start',false).median(), 
+            {min:0, max:3000, bands:['B12','B11', 'B8']}, 
+            'S-2 Atmospheric penetration composite [B12-B11-B9]');
 
 // calculate RVI, RFDI and DPSVI
 var indices = function(img) {
@@ -80,12 +83,7 @@ var indices = function(img) {
                       ]).copyProperties(img,img.propertyNames());
 };
 
-// convert power units to dB
-var powerToDb = function powerToDb (img){
-  return ee.Image(10).multiply(img.log10()).copyProperties(img,img.propertyNames());
-};
-
-
+// Load Sentinel-1 images
 var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
     .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'))
     .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))
@@ -93,16 +91,6 @@ var s1 = ee.ImageCollection('COPERNICUS/S1_GRD_FLOAT')
     .filterBounds(geometry)
     .filterDate(startDate, fireEndDate );
 
-// print('Available S-1 images', s1);
-// print(s1.limit(5).map(robustScaler))
-// Map.addLayer(s1.limit(5).map(robustScaler).first())
-// var percentiles = s1.first().reduceRegion({
-//       reducer: ee.Reducer.percentile([25, 75]),
-//       geometry: geometry,
-//       scale: 20,
-//       maxPixels: 1e9
-//     });
-// print(percentiles.values())
 
 // call the prepared function to merge overlapping images over the ROI
 var theFunction = require('users/danielp/functions:makeMosaicsFromOverlappingTiles_function');
@@ -116,7 +104,7 @@ var S1Collection = finalCollection
                     .map(indices).sort('system:time_start');
 
 // prepare the post-fire image collection
-var post_fire_images = S1Collection.filterDate(fireStartDate, fireEndDate )//.map(powerToDb);
+var post_fire_images = S1Collection.filterDate(fireStartDate, fireEndDate );
 
 // load JRC Global Surface Water database for masking out water areas
 var JRC = ee.Image('JRC/GSW1_3/GlobalSurfaceWater');
@@ -125,7 +113,7 @@ var waterMask = JRC.select('occurrence').gt(10).unmask().eq(0).clip(geometry);
 // *****************************************
 // ********** Visualisation check
 
-var postImage = post_fire_images.sort('system:time_start',false).first()
+var postImage = post_fire_images.sort('system:time_start',false).first();
   var satellite = postImage.get('platform_number');
   var path = ee.Number.parse(postImage.get('relativeOrbitNumber_start'));
   var orbit = postImage.get('orbitProperties_pass');
@@ -135,13 +123,13 @@ var postImage = post_fire_images.sort('system:time_start',false).first()
                         .filter(ee.Filter.eq('platform_number', satellite))
                         .filter(ee.Filter.eq('relativeOrbitNumber_start', path))
                         .filter(ee.Filter.eq('orbitProperties_pass', orbit))
-                        // .map(powerToDb).sort('system:time_start')
+                        // .sort('system:time_start');
 
 var preImage = pre_TS_collection_vis
                 .filterDate(ee.Date(fireStartDate).advance(-1,'month'), fireStartDate)
                 .median();
 
-var MT_RGB_SW = ee.Image.cat(preImage.rename("preVV", "preVH", "preAngle",'RVI'),postImage.rename("postVV", "postVH", "postAngle",'RVI2'));
+var MT_RGB_SW = ee.Image.cat(preImage.select(['VV','VH']).rename("preVV", "preVH"),postImage.select(['VV','VH']).rename("postVV", "postVH"));
 
 Map.addLayer(MT_RGB_SW, {bands: ["postVH", "preVH", "preVH"], min: -25, max: -5}, "MT_RGB_SW_VH: post-pre-pre",0);
 Map.addLayer(MT_RGB_SW, {bands: ["preVH", "postVH", "postVH"], min: -25, max: -5}, "MT_RGB_SW_VH: pre-post-post",0);
@@ -163,7 +151,7 @@ var imagePreparation = function (img) {
                         .filterDate(startDate, fireStartDate)
                         .filter(ee.Filter.eq('platform_number', satellite))
                         .filter(ee.Filter.eq('relativeOrbitNumber_start', path))
-                        .filter(ee.Filter.eq('orbitProperties_pass', orbit))
+                        .filter(ee.Filter.eq('orbitProperties_pass', orbit));
 
   // create median composite from images acquired one month before fire started
   var preImage = pre_TS_collection
@@ -171,10 +159,10 @@ var imagePreparation = function (img) {
                 .median();
 
   // create statistics images
-  var median = pre_TS_collection.reduce(ee.Reducer.median(),16)//.clip(geometry);
-  var mean = pre_TS_collection.reduce(ee.Reducer.mean(),16)//.clip(geometry);
+  var median = pre_TS_collection.reduce(ee.Reducer.median(),16);
+  var mean = pre_TS_collection.reduce(ee.Reducer.mean(),16);
 
-  var stdDev = pre_TS_collection.reduce(ee.Reducer.sampleStdDev(),16)//.clip(geometry);
+  var stdDev = pre_TS_collection.reduce(ee.Reducer.sampleStdDev(),16);
   
   var diffRVI = postImage.select('RVI').subtract(preImage.select('RVI'));
   var diffRFDI = postImage.select('RFDI').subtract(preImage.select('RFDI'));
@@ -200,7 +188,7 @@ var imagePreparation = function (img) {
   var smoothed = forClass.select(selectedIndices).reduceNeighborhood({
     reducer: ee.Reducer.mean(),
     kernel: ee.Kernel.square(kernelSize)
-    })
+    });
   
     // select indices to use
   if (pol_filter == 'VH') {
@@ -244,18 +232,26 @@ var preparedImages = post_fire_images.sort('system:time_start')
 // preparedImages = theFunction.makeMosaicsFromOverlappingTiles(preparedImages,geometry)
                    
 
-print('Images to export:', preparedImages)
+print('Images to export:', preparedImages);
 
 // Image 
 var oneImage = preparedImages.toBands()
                 .set('numberOfImages',preparedImages.size());
 
 Export.image.toAsset({image: ee.Image(oneImage).toFloat(),
-                      description: 'S1BAM_input_images', 
+                      description: 'S1BAP_input_images', 
                       region: geometry,
                       scale: 20,
                       crs: crs,
-                      maxPixels: 10e9})
+                      maxPixels: 10e9});
 
 Export.table.toAsset({collection: ee.FeatureCollection(ee.Feature(geometry)),
-                      description: 'S1BAM_selected_geometry'})
+                      description: 'S1BAP_selected_geometry'});
+
+// Export.image.toDrive({image: finalResults.first().toFloat(), 
+//                       description: "_ALL", 
+//                       folder: 'NewALL',
+//                       region: geometry,
+//                       scale: 20,
+//                       crs: 'EPSG:32634',
+//                       maxPixels: 10e9})
