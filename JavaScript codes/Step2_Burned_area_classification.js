@@ -1,39 +1,61 @@
-// Add your selected geometry exported in the previous step
-var geometry = ee.FeatureCollection('users/danielp/S1BAM_selected_geometry_athens2');
-// S1BAM_selected_geometry_athens, Sparta2021, Slovenia2022
- 
-// Add the exported image
-var input_images = ee.Image('users/danielp/0_FINAL_Athens2_progression_19x19');
+/*
+This code performs the unsupervised clustering based on Paluba et al. (2024).
+Set the required parameters in the *SETTINGS FOR THE USER* section of this code,
+starting on lines 27-34. After you set the input parameters, RUN the code and 
+export the sub-product in the "Tasks" bar for the next step (results of clustering).
 
-print(input_images);
-// Set the CRS in EPSG
+--
+This code is free and open. 
+By using this code and any data derived with it, 
+you agree to cite the following reference 
+in any publications derived from them:
+ 
+    Paluba, D. et al. (2024): Tracking burned area progression in an 
+    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
+    To be published in the IEEE JSTARS.
+--
+
+Author of the code: Daniel Paluba (palubad@natur.cuni.cz)
+*/
+
+
+// ======================================================================== //
+// ====================== SETTINGS FOR THE USER ========================== //
+// ====================================================================== //
+
+// Load your selected geometry exported in the previous step
+var geometry = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Megara');
+
+// Load the exported image from the first step (Code Step1_Input_data_preprocessing)
+var input_images = ee.Image('users/danielp/S1BAP_images/Input_images_Megara');
+// See the 'users/danielp/S1BAP_images' ImageCollection for input images for each ROI used in Paluba et al. (2024)
+
+// Set the CRS in EPSG [String]
 var crs = 'EPSG:32634';
 
-// Select polarization filter [String]
-// available options: 'ALL', 'VH', 'VV'
-var pol_filter = 'ALL';
 
-////////////////////////////// 
-// testing bands
-////////////////////////////// 
-var pol_filter = 
-  ee.Filter.or( 
-              ee.Filter.stringContains('item','RFDI'),
-              ee.Filter.stringContains('item','kmap_VH'),
-              ee.Filter.stringContains('item','kmap_VV'),
-              ee.Filter.stringContains('item','logRatio_VH'),
-              ee.Filter.stringContains('item','logRatio_VV')
-              // ee.Filter.stringContains('item','RVI')
-              );
+// ======================================================================== //
+// ================= SETTINGS DEFINED IN THE PAPER ======================= //
+// ====================================================================== //
 
-var pol_selection = input_images.bandNames().filter(pol_filter);
+print(input_images);
 
-input_images = input_images.select(ee.List(pol_selection));
+// Here you can select which features to use
+// var pol_filter = 
+//   ee.Filter.or( 
+//               ee.Filter.stringContains('item','RFDI'),
+//               ee.Filter.stringContains('item','kmap_VH'),
+//               ee.Filter.stringContains('item','kmap_VV'),
+//               ee.Filter.stringContains('item','logRatio_VH'),
+//               ee.Filter.stringContains('item','logRatio_VV')
+//               // ee.Filter.stringContains('item','RVI')
+//               );
 
 
 // Create 1 km km inverse buffer to avoid including NoData values 
 geometry = geometry.first().geometry().buffer(-2000);
 
+// Zoom to the selected geometry
 Map.centerObject(geometry,11);
 
 Map.addLayer(geometry);
@@ -151,14 +173,14 @@ len.evaluate(function(l) {
 });
 
 Export.image.toAsset({image: ee.Image(results_in_bands).toFloat(), 
-                      description: "S1BAM_results", 
+                      description: "S1BAP_results_for_the_next_step", 
                       region: geometry.buffer(2000),
                       scale: 20,
                       crs: crs,
                       maxPixels: 10e9});
                       
 Export.image.toDrive({image: ee.Image(results_in_bands).toFloat(), 
-                      description: "S1BAM_clustering_results_to_Drive", 
+                      description: "S1BAP_clustering_results_to_Drive", 
                       folder: 'S1BAM',
                       region: geometry.buffer(2000),
                       scale: 20,
