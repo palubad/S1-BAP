@@ -1,17 +1,41 @@
-// LOAD DATA
-// Load the geometry from step 1
-var geometry = ee.FeatureCollection('users/danielp/S1BAM_selected_geometry_olympia');
+/*
+This code performs the quantitative analysis of the results, burned area calculation
+for each time step, calculation of burned areas based on land cover types and creates 
+a GIF animation from the resulting time series of images, based on Paluba et al. (2024).
+
+Set the required parameters in the *SETTINGS FOR THE USER* section of this code 
+on lines 28-45. After you set the input parameters, RUN the code and enjoy the results.
+
+--
+This code is free and open. 
+By using this code and any data derived with it, 
+you agree to cite the following reference 
+in any publications derived from them:
  
-// Load the result from step 2
-var result = ee.Image('users/danielp/0_FINAL_results_Olympia');
+    Paluba, D. et al. (2024): Tracking burned area progression in an 
+    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
+    To be published in the IEEE JSTARS.
+--
 
+Author of the code: Daniel Paluba (palubad@natur.cuni.cz)
+*/
 
-// SET THE PARAMETERS
-// Video Settings - frames per seconds
+// ======================================================================== //
+// ====================== SETTINGS FOR THE USER ========================== //
+// ====================================================================== //
+
+// Load the FeatureCollection with the exported geometry from step 1
+var geometry = ee.FeatureCollection('users/danielp/S1BAP/Selected_geometry_Megara');
+ 
+// Load the Image with the exported results from step 2
+var result = ee.Image('users/danielp/S1BAP/Results_Megara');
+// See the 'users/danielp/S1BAP_images' ImageCollection for results for each ROI used in Paluba et al. (2024)
+
+// SET THE GIF PARAMETERS - frames per seconds
 var framesPerSecond = 1;
 
-var limit = 6; // set 100 if you do not want limit your images
-// athens1 = 3; athens2 = 4; evia = 5; olympia = 6
+var limit = 4; // How many images to have in the GIF animation. Set 100 if you do not want limit your images
+// Tatoi = 3; Megara = 4; Evia = 5; Olympia = 6
 
 // for which image to prepare the land cover analysis [integer]
 // The possible range is [0, 'limit'-1]. Value -1 stands for the last image.
