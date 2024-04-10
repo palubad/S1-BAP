@@ -1,7 +1,7 @@
-# Sentinel-1 Wildfire Progression Monitoring (S1-WPM) in Google Earth Engine (GEE)
-This code repository is an attachment for the article in the IEEE JSTARS by Paluba D. et al. entitled "Unsupervised Monitoring of Wildfire Progression using Sentinel-1 Data in Google Earth Engine".
+# Sentinel-1 Burned Area Progression (S1-BAP) toolbox in Google Earth Engine (GEE)
+This code repository is an attachment for the article in the IEEE JSTARS by Paluba D. et al. (2024) entitled "Tracking burned area progression in an unsupervised manner using Sentinel-1 SAR data in Google Earth Engine".
 
-A three-step automatic toolbox in GEE, called the 'Sentinel-1 Wildfire Progression Monitoring Toolbox' (S1-WPM), was developed to map fire-affected areas using all available acquisitions of Sentinel-1 Synthetic Aperture Radar (SAR) data using an unsupervised approach, providing not only the maps of burned area evolution, but also the underlying statistics about the land cover, which was affected and detected. 
+A three-step automatic toolbox in GEE, called the 'Sentinel-1 Burned Area Progression Toolbox' (S1-BAP), was developed to map fire-affected areas using all available acquisitions of Sentinel-1 Synthetic Aperture Radar (SAR) data using an unsupervised approach, providing not only the maps of burned area evolution, but also the underlying statistics about the land cover, which was affected and detected. 
 
 1. In the first step, the user sets the region of interest (ROI), start and end date of the fire event, the moving kernel window size for feature smoothing, use of polarized bands (VV, VH only or ALL) or sets an own list of available features to use for clustering.
     - The area of interest can be drawn using the Drawing Tools on the map, or it can be imported to GEE as an Asset.
@@ -17,7 +17,7 @@ A three-step automatic toolbox in GEE, called the 'Sentinel-1 Wildfire Progressi
     - GIF time series animation and
     - an analysis of affected land cover classes based on the CLC.
    
-The S1-WPM toolbox is freely available to the general public and is available from the GitHub repository at the following link: https://github.com/palubad/S1-WPM (will be publicly available after the article is published) and can also be imported to GEE using the following link: https://code.earthengine.google.com/?accept_repo=users/danielp/S1-WPM (last accessed on 31.08.2023).
+The S1-WPM toolbox is freely available to the general public and is available from the GitHub repository at the following link: https://github.com/palubad/S1-WPM (will be publicly available after the article is published) and can also be imported to GEE using the following link: https://code.earthengine.google.com/?accept_repo=users/danielp/S1-BAP (last accessed on 31.08.2023).
 
 
 
