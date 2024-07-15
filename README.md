@@ -22,6 +22,9 @@ A three-step automatic toolbox in GEE, called the 'Sentinel-1 Burned Area Progre
 The S1-BAPtoolbox is freely available to the general public and is available from the GitHub repository at the following link: https://github.com/palubad/S1-WPM (will be publicly available after the article is published) and can also be imported to GEE using the following link: https://code.earthengine.google.com/?accept_repo=users/danielp/S1-BAP (last accessed on 16.07.2024).
 
 
+Methodology used in the [paper](https://doi.org/10.1109/JSTARS.2024.3427382):
+![Fig  2](https://github.com/user-attachments/assets/a2f1d4a2-d6ba-4994-80a5-0fe8865ee823)
+
 
 --
 This dataset is free and open. 
