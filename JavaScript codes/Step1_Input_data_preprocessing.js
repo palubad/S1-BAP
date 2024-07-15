@@ -13,9 +13,11 @@ By using this code and any data derived with it,
 you agree to cite the following reference 
 in any publications derived from them:
  
-    Paluba, D. et al. (2024): Tracking burned area progression in an 
-    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
-    To be published in the IEEE JSTARS.
+    D. Paluba et al., "Tracking burned area progression in an 
+    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine," in 
+    IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing, 
+    doi: 10.1109/JSTARS.2024.3427382.
+
 --
 
 Authors of the code: Daniel Paluba (palubad@natur.cuni.cz) & Lorenzo G. Papale 
@@ -123,7 +125,7 @@ var postImage = post_fire_images.sort('system:time_start',false).first();
                         .filter(ee.Filter.eq('platform_number', satellite))
                         .filter(ee.Filter.eq('relativeOrbitNumber_start', path))
                         .filter(ee.Filter.eq('orbitProperties_pass', orbit))
-                        // .sort('system:time_start');
+                        .sort('system:time_start');
 
 var preImage = pre_TS_collection_vis
                 .filterDate(ee.Date(fireStartDate).advance(-1,'month'), fireStartDate)
@@ -135,7 +137,7 @@ Map.addLayer(MT_RGB_SW, {bands: ["postVH", "preVH", "preVH"], min: -25, max: -5}
 Map.addLayer(MT_RGB_SW, {bands: ["preVH", "postVH", "postVH"], min: -25, max: -5}, "MT_RGB_SW_VH: pre-post-post",0);
 
 // adjust kernel size
-kernelSize = ee.Number(kernelSize).divide(2);
+kernelSize = ee.Number(kernelSize).subtract(1).divide(2);
 
 //******************************************************************** //
 // *************** THE MAIN FUNCTION *********************************//
