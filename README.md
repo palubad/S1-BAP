@@ -40,7 +40,5 @@ This dataset is free and open.
 By using it, you agree to cite the following reference 
 in any publications derived from them:
  
-    Paluba, D. et al. (2024): Tracking burned area progression in an 
-    unsupervised manner using Sentinel-1 SAR data in Google Earth Engine. 
-    To be published in the IEEE JSTARS.
+D. Paluba et al., "Tracking burned area progression in an unsupervised manner using Sentinel-1 SAR data in Google Earth Engine," in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing, doi: [10.1109/JSTARS.2024.3427382](https://doi.org/10.1109/JSTARS.2024.3427382).
 --
