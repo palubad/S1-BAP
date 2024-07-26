@@ -1,4 +1,6 @@
 # Sentinel-1 Burned Area Progression (S1-BAP) toolbox in Google Earth Engine (GEE)
+A semi-automatic Google Earth Engine tool to monitor burned area progression using Sentinel-1 SAR data. 
+
 This code repository is an attachment for the article in the IEEE JSTARS by Paluba D. et al. (2024) entitled "Tracking burned area progression in an unsupervised manner using Sentinel-1 SAR data in Google Earth Engine", DOI: [https://doi.org/10.1109/JSTARS.2024.3427382](https://doi.org/10.1109/JSTARS.2024.3427382).
 
 Full citation: D. Paluba et al., "Tracking burned area progression in an unsupervised manner using Sentinel-1 SAR data in Google Earth Engine," in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing, doi: [10.1109/JSTARS.2024.3427382](https://doi.org/10.1109/JSTARS.2024.3427382).
