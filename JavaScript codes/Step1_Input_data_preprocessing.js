@@ -63,6 +63,8 @@ var crs = 'EPSG:32634';
 //*******************************************************************************************
 //                            CREATE SAR POLARIMETRIC INDICES
 
+geometry = geometry.bounds()
+
 // Center the view on your ROI
 Map.centerObject(geometry, 11);
 
